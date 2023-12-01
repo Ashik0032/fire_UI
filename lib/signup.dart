@@ -326,12 +326,15 @@ class _sign_upState extends State<sign_up> {
                     height: width * 0.05,
                   ),
                   InkWell(
-                    onTap: () async {
-                      SharedPreferences _prefs
-                    =await SharedPreferences.getInstance();
-                     _prefs.setBool("login", true);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Success")));
+                    onTap: () {
+                      Navigator.push(context, CupertinoPageRoute(builder: (context) => homePage(),));
                     },
+                  //   onTap: () async {
+                  //     SharedPreferences _prefs
+                  //   =await SharedPreferences.getInstance();
+                  //    _prefs.setBool("login", true);
+                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Success")));
+                  //   },
                     child: Container(
                       height: width * 0.13,
                       width: width * 0.65,

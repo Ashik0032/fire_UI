@@ -80,20 +80,30 @@ class _profileState extends State<profile> {
                 children: [
                   Stack(
                     children: [
-                      CircleAvatar(
+                      file != null
+                          ? Container(
+                        height: width * 0.4,
+                        width: width * 0.4,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: FileImage(file),
+                                fit: BoxFit.cover)),
+                      )
+                          : CircleAvatar(
                         radius: width * 0.19,
                         backgroundColor: colorPage.secondaryColor,
                         backgroundImage: AssetImage(imagePage.image11),
                         // backgroundColor: colorPage.primaryColor,
                       ),
                       Positioned(
-                        bottom: 0,
-                        right: 0,
+                        top: width * 0.28,
+                        left: width * 0.22,
                         child: InkWell(
                           onTap: () {
                             showCupertinoModalPopup(
                               barrierColor: colorPage.sixColor,
-                              context: context, builder: (context){
+                              context: context, builder: (context) {
                               return CupertinoActionSheet(
                                 actions: [
                                   CupertinoActionSheetAction(
