@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "588740103888",
+    "project_id": "crud-d40f5",
+    "storage_bucket": "crud-d40f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588740103888:android:5b7a3c2093055ef4f598d5",
+        "android_client_info": {
+          "package_name": "com.example.fire_ui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkF-4kGfLfupM9hGsf_Ti6cC-96Y0t_MY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
