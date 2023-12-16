@@ -14,5 +14,7 @@ class imagePage{
   static const image13="images/Street Life Standing.svg";
   static const image14="images/wp6424362-tim-boss-baby-wallpapers.png";
   static const image15="images/boy.jpg";
+  static const image16="images/upload.png";
+  static const image17="images/pexels-ena-marinkovic-3925875 3.png";
 
 }

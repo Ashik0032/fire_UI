@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:fire_ui/color_page.dart';
 import 'package:fire_ui/homePage.dart';
 import 'package:fire_ui/image_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,13 +13,15 @@ import 'package:pinput/pinput.dart';
 import 'main.dart';
 
 class otp extends StatefulWidget {
-  const otp({super.key});
+   final String verificationid;
+   otp({super.key,required this.verificationid});
 
   @override
   State<otp> createState() => _otpState();
 }
 
 class _otpState extends State<otp> {
+  TextEditingController otp_controller = TextEditingController();
   // bool tap=true;
   int index = 0;
   @override
@@ -97,6 +102,7 @@ class _otpState extends State<otp> {
                               ],
                             ),
                             Pinput(
+                              controller: otp_controller,
                               length: 6,
                               defaultPinTheme: PinTheme(
                                   height: width * 0.18,
@@ -122,12 +128,22 @@ class _otpState extends State<otp> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                      builder: (context) => homePage(),
-                                    ));
+                              onTap: () async {
+                                try{
+                                  PhoneAuthCredential credential =await PhoneAuthProvider.credential(
+                                      verificationId: widget.verificationid,
+                                      smsCode: otp_controller.text.toString());
+                                  FirebaseAuth.instance.signInWithCredential(credential).then((value){
+                                    Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                          builder: (context) => homePage(),
+                                        ));
+                                  });
+                                }catch(ex){
+                                print(ex);
+                                }
+
                               },
                               child: Container(
                                 height: width * 0.13,

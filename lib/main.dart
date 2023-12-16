@@ -2,7 +2,10 @@ import 'package:fire_ui/EditUser.dart';
 import 'package:fire_ui/Profile.dart';
 import 'package:fire_ui/add_User.dart';
 import 'package:fire_ui/api%20task.dart';
+import 'package:fire_ui/banner.dart';
 import 'package:fire_ui/homePage.dart';
+import 'package:fire_ui/image_page.dart';
+import 'package:fire_ui/imagepiker.dart';
 import 'package:fire_ui/login.dart';
 import 'package:fire_ui/login_signup.dart';
 import 'package:fire_ui/otp.dart';
@@ -26,7 +29,8 @@ Future<void> main() async {
 
   runApp(fireUI());
 }
-String? name;
+
+
 var width;
 var height;
 class fireUI extends StatelessWidget {
@@ -43,7 +47,7 @@ class fireUI extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home:shared_preferences(),
-      home:splash(),
+      home:Banner_page(),
     );
   }
 }

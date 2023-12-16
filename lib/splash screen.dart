@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'login.dart';
 import 'main.dart';
 
 class splash extends StatefulWidget {
@@ -33,10 +34,10 @@ class _splashState extends State<splash> {
   // }
   getData() async {
     SharedPreferences abc=await SharedPreferences.getInstance();
-    name =abc.getString("name")??"";
+    currentUserName =abc.getString("name")??"";
 
     Future.delayed(Duration(seconds: 4)).then((value) =>
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => name==""?login_signup():homePage(),)));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => currentUserName==""?login_signup():homePage(),)));
   }
   @override
   void initState() {

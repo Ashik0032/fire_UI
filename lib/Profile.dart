@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fire_ui/color_page.dart';
+import 'package:fire_ui/homePage.dart';
 import 'package:fire_ui/image_page.dart';
 import 'package:fire_ui/login.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +14,14 @@ import 'package:image_picker/image_picker.dart';
 import 'main.dart';
 
 class profile extends StatefulWidget {
-  const profile({super.key});
+  const profile(
+      {super.key,
+      required this.name1,
+      required this.email,
+      required this.password});
+  final String name1;
+  final String email;
+  final String password;
 
   @override
   State<profile> createState() => _profileState();
@@ -24,20 +33,29 @@ class _profileState extends State<profile> {
   TextEditingController email_controller = TextEditingController();
   TextEditingController password_controller = TextEditingController();
   final emailvallidation =
-  RegExp(r"^[a-z0-9.a-z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-z0-9]+\.[a-z]+");
+      RegExp(r"^[a-z0-9.a-z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-z0-9]+\.[a-z]+");
   final passwordvallidation =
-  RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+      RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
   final formkey = GlobalKey<FormState>();
   var file;
   pickFile(ImageSource) async {
-    final imageFile=await ImagePicker.platform.pickImage(source: ImageSource);
-    file=File(imageFile!.path);
-    if(mounted){
+    final imageFile = await ImagePicker.platform.pickImage(source: ImageSource);
+    file = File(imageFile!.path);
+    if (mounted) {
       setState(() {
-        file=File(imageFile.path);
+        file = File(imageFile.path);
       });
     }
   }
+
+  void initState() {
+    name_controller.text = widget.name1;
+    email_controller.text = widget.email;
+    password_controller.text = widget.password;
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,20 +100,20 @@ class _profileState extends State<profile> {
                     children: [
                       file != null
                           ? Container(
-                        height: width * 0.4,
-                        width: width * 0.4,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                image: FileImage(file),
-                                fit: BoxFit.cover)),
-                      )
+                              height: width * 0.4,
+                              width: width * 0.4,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                      image: FileImage(file),
+                                      fit: BoxFit.cover)),
+                            )
                           : CircleAvatar(
-                        radius: width * 0.19,
-                        backgroundColor: colorPage.secondaryColor,
-                        backgroundImage: AssetImage(imagePage.image11),
-                        // backgroundColor: colorPage.primaryColor,
-                      ),
+                              radius: width * 0.19,
+                              backgroundColor: colorPage.secondaryColor,
+                              backgroundImage: AssetImage(imagePage.image11),
+                              // backgroundColor: colorPage.primaryColor,
+                            ),
                       Positioned(
                         top: width * 0.28,
                         left: width * 0.22,
@@ -103,41 +121,44 @@ class _profileState extends State<profile> {
                           onTap: () {
                             showCupertinoModalPopup(
                               barrierColor: colorPage.sixColor,
-                              context: context, builder: (context) {
-                              return CupertinoActionSheet(
-                                actions: [
-                                  CupertinoActionSheetAction(
-                                    onPressed: () {
-                                      pickFile(ImageSource.gallery);
-                                    }, child: Text("Photo Gallery",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: width*0.05
+                              context: context,
+                              builder: (context) {
+                                return CupertinoActionSheet(
+                                  actions: [
+                                    CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        pickFile(ImageSource.gallery);
+                                      },
+                                      child: Text("Photo Gallery",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: width * 0.05)),
+                                      isDefaultAction: true,
+                                    ),
+                                    CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        pickFile(ImageSource.camera);
+                                      },
+                                      child: Text("Camera",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: width * 0.05)),
+                                      isDefaultAction: true,
+                                    ),
+                                  ],
+                                  cancelButton: CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: width * 0.05),
                                       )),
-                                    isDefaultAction: true,),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () {
-                                      pickFile(ImageSource.camera);
-                                    }, child: Text("Camera",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: width*0.05
-                                      )),
-                                    isDefaultAction: true,),
-                                ],
-                                cancelButton: CupertinoActionSheetAction(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-
-                                    }, child: Text("Cancel",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: width*0.05
-                                  ),)),
-                              );
-                            },
+                                );
+                              },
                             );
-
                           },
                           child: CircleAvatar(
                             radius: width * 0.05,
@@ -162,10 +183,9 @@ class _profileState extends State<profile> {
                           keyboardType: TextInputType.multiline,
                           textInputAction: TextInputAction.done,
                           style: TextStyle(
-                            fontSize: width * 0.05,
-                            fontWeight: FontWeight.w500,
-                            color: colorPage.tenColor
-                          ),
+                              fontSize: width * 0.05,
+                              fontWeight: FontWeight.w500,
+                              color: colorPage.tenColor),
                           decoration: InputDecoration(
                             labelText: "User name",
                             labelStyle: TextStyle(
@@ -179,7 +199,7 @@ class _profileState extends State<profile> {
                             ),
                             border: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.circular(width * 0.03),
+                                    BorderRadius.circular(width * 0.03),
                                 borderSide: BorderSide()),
                           ),
                         ),
@@ -189,10 +209,9 @@ class _profileState extends State<profile> {
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.done,
                           style: TextStyle(
-                            fontSize: width * 0.05,
-                            fontWeight: FontWeight.w500,
-                              color: colorPage.tenColor
-                          ),
+                              fontSize: width * 0.05,
+                              fontWeight: FontWeight.w500,
+                              color: colorPage.tenColor),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           // validator: (value) {
                           //   if(!emailvallidation.hasMatch(value!))
@@ -216,7 +235,7 @@ class _profileState extends State<profile> {
                             ),
                             border: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.circular(width * 0.03),
+                                    BorderRadius.circular(width * 0.03),
                                 borderSide: BorderSide()),
                           ),
                         ),
@@ -228,10 +247,9 @@ class _profileState extends State<profile> {
                           obscureText: tap ? true : false,
                           obscuringCharacter: '*',
                           style: TextStyle(
-                            fontSize: width * 0.05,
-                            fontWeight: FontWeight.w500,
-                              color: colorPage.tenColor
-                          ),
+                              fontSize: width * 0.05,
+                              fontWeight: FontWeight.w500,
+                              color: colorPage.tenColor),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
                             suffixIcon: InkWell(
@@ -239,10 +257,12 @@ class _profileState extends State<profile> {
                                   tap = !tap;
                                   setState(() {});
                                 },
-                                child: Icon(tap
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,color:colorPage.tenColor,)),
-
+                                child: Icon(
+                                  tap
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: colorPage.tenColor,
+                                )),
                             labelText: "Password",
                             labelStyle: TextStyle(
                                 fontSize: width * 0.05,
@@ -255,11 +275,10 @@ class _profileState extends State<profile> {
                             ),
                             border: OutlineInputBorder(
                                 borderRadius:
-                                BorderRadius.circular(width * 0.025),
+                                    BorderRadius.circular(width * 0.025),
                                 borderSide: BorderSide(
                                   color: colorPage.thirdColor,
                                 )),
-
                           ),
                         ),
                       ],
@@ -291,7 +310,22 @@ class _profileState extends State<profile> {
                               CupertinoDialogAction(
                                 isDefaultAction: true,
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  FirebaseFirestore.instance
+                                      .collection("flit")
+                                      .doc(currentUserid)
+                                      .update({
+                                    'name': name_controller.text,
+                                    "email": email_controller.text,
+                                    "password": password_controller.text,
+                                  });
+                                  currentUserName = name_controller.text;
+
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      CupertinoPageRoute(
+                                        builder: (context) => homePage(),
+                                      ),
+                                      (route) => false);
                                 },
                                 child: Text("Confirm"),
                               ),
@@ -304,7 +338,7 @@ class _profileState extends State<profile> {
                       height: width * 0.13,
                       width: width * 0.65,
                       decoration: BoxDecoration(
-                        // color: colorPage.secondaryColor,
+                          // color: colorPage.secondaryColor,
                           border: Border.all(
                               color: colorPage.primaryColor,
                               width: width * 0.006),
@@ -327,4 +361,3 @@ class _profileState extends State<profile> {
     );
   }
 }
-

@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fire_ui/color_page.dart';
 import 'package:fire_ui/homePage.dart';
 import 'package:fire_ui/image_page.dart';
 import 'package:fire_ui/login.dart';
 import 'package:fire_ui/sharedPreference.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -42,19 +44,18 @@ class _sign_upState extends State<sign_up> {
       });
     }
   }
+
   String number = '';
   String name = '';
-  int num =0;
+  int num = 0;
   getData() async {
-    SharedPreferences _prefs =
-    await SharedPreferences.getInstance();
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
     number = _prefs.getString("number").toString();
     name = _prefs.getString("name").toString();
     num = _prefs.getInt('num')!;
   }
 
   @override
-
   void initState() {
     getData();
     // TODO: implement initState
@@ -327,14 +328,61 @@ class _sign_upState extends State<sign_up> {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.push(context, CupertinoPageRoute(builder: (context) => homePage(),));
+                      if (name_controller.text != "" &&
+                          email_controller.text != "" &&
+                          password_controller.text != "") {
+                        FirebaseAuth.instance
+                            .createUserWithEmailAndPassword(
+                                email: email_controller.text,
+                                password: password_controller.text)
+                            .then((value) {
+                          FirebaseFirestore.instance.collection('flit').add({
+                            "name": name_controller.text,
+                            "email": email_controller.text,
+                            "password": password_controller.text,
+                            'images':
+                                "https://www.pngall.com/wp-content/uploads/5/Profile-Avatar-PNG.png"
+                          });
+                          Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (context) => homePage(),
+                              ));
+                        }).catchError((error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(error.code.toString())));
+                        });
+
+                        // FirebaseAuth.instance.createUserWithEmailAndPassword(email: email_controller.text, password: password_controller.text).then((value) {
+
+                        // });
+                      } else {
+                        name_controller.text == ""
+                            ? ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("enter your name!")))
+                            : email_controller.text == ""
+                                ? ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("enter your email!")))
+                                : ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("enter your password!")));
+                      }
+
+                      // FirebaseFirestore.instance.collection('users').doc('user001').set(
+                      //                    {
+                      //                      'name':"ashik123",
+                      //                      "email":"muhammedashik480@gmail.com",
+                      //                      "password":"8129033200"
+                      //                    }
+                      //                  );
                     },
-                  //   onTap: () async {
-                  //     SharedPreferences _prefs
-                  //   =await SharedPreferences.getInstance();
-                  //    _prefs.setBool("login", true);
-                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Success")));
-                  //   },
+                    //   onTap: () async {
+                    //     SharedPreferences _prefs
+                    //   =await SharedPreferences.getInstance();
+                    //    _prefs.setBool("login", true);
+                    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Success")));
+                    //   },
                     child: Container(
                       height: width * 0.13,
                       width: width * 0.65,

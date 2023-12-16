@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fire_ui/EditUser.dart';
 import 'package:fire_ui/color_page.dart';
 import 'package:fire_ui/homePage.dart';
 import 'package:fire_ui/image_page.dart';
 import 'package:fire_ui/login.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'main.dart';
-
+ // String imageurl1 ="";
 class add_User extends StatefulWidget {
   const add_User({super.key});
 
@@ -39,6 +42,20 @@ class _add_UserState extends State<add_User> {
         file=File(imageFile.path);
       });
     }
+    uploadFile();
+  }
+
+  uploadFile() async {
+    if(file!=null){
+      var uploadTask = await FirebaseStorage.instance.ref('images').child("${DateTime.now()}").putFile(file!);
+
+      imageurl=await uploadTask.ref.getDownloadURL();
+      print(imageurl);
+
+      Navigator.pop(context);
+
+    }
+
   }
   @override
   Widget build(BuildContext context) {
@@ -83,16 +100,14 @@ class _add_UserState extends State<add_User> {
                   Stack(
                     children: [
                       file != null
-                          ? Container(
-                        height: width * 0.4,
-                        width: width * 0.4,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                image: FileImage(file),
-                                fit: BoxFit.cover)),
-                      )
-                          : CircleAvatar(
+                          ?  CircleAvatar(
+                radius: width * 0.19,
+                backgroundColor: colorPage.secondaryColor,
+                backgroundImage: NetworkImage(imageurl),
+                // backgroundColor: colorPage.primaryColor,
+              )
+                          :
+                      CircleAvatar(
                         radius: width * 0.19,
                         backgroundColor: colorPage.secondaryColor,
                         backgroundImage: AssetImage(imagePage.image11),
@@ -304,7 +319,41 @@ class _add_UserState extends State<add_User> {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.push(context, CupertinoPageRoute(builder: (context) => homePage(),));
+                      if (name_controller.text != "" &&
+                          email_controller.text != "" &&
+                          password_controller.text != ""&&
+                            imageurl!="") {
+                        FirebaseFirestore.instance.collection("flit").add({
+                          "name": name_controller.text,
+                          "email": email_controller.text,
+                          "password": password_controller.text,
+                          "images":imageurl,
+                        });
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => homePage(),));
+                      } else {
+                        name_controller.text == ""
+                            ? ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("enter your name!")))
+                            : email_controller.text == ""
+                            ? ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text("enter your email!")))
+                            :password_controller.text==""? ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text("enter your password!"))):
+                        imageurl==""? ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text("upload images!"))):
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => homePage(),));
+                      }
+
+                      // FirebaseFirestore.instance.collection('users').doc('user001').set(
+                      //                    {
+                      //                      'name':"ashik123",
+                      //                      "email":"muhammedashik480@gmail.com",
+                      //                      "password":"8129033200"
+                      //                    }
+                      //                  );
                     },
                     child: Container(
                       height: width * 0.13,

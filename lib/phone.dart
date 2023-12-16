@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:fire_ui/color_page.dart';
 import 'package:fire_ui/image_page.dart';
 import 'package:fire_ui/login.dart';
 import 'package:fire_ui/otp.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,6 +22,7 @@ class phone extends StatefulWidget {
 class _phoneState extends State<phone> {
   TextEditingController number_controller = TextEditingController();
   final numbervallidation = RegExp(r'[0-9]{10}');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,8 +132,19 @@ class _phoneState extends State<phone> {
                       ),
                       SizedBox(height: width*0.03,),
                       InkWell(
-                        onTap: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (context) => otp(),));
+                        onTap: () async {
+                          await FirebaseAuth.instance.verifyPhoneNumber(
+                              verificationCompleted: (PhoneAuthCredential credential){},
+                              verificationFailed: (FirebaseException ex){},
+
+                              codeSent: (String verificationId,int? resendtoken){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => otp(verificationid:verificationId),));
+                              },
+
+                              codeAutoRetrievalTimeout: (verificationid){},
+
+                              phoneNumber: "+91${number_controller.text}");
+                          currentUserName=number_controller.text;
                         },
                         child: Container(
                           height: width*0.13,

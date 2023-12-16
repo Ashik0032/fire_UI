@@ -25,13 +25,9 @@ class _api_integrationState extends State<api_integration> {
     api = json.decode(apiData!.body);
 
     if (apiData != null) {
-      print('case 1');
       postOffice = api[0]['PostOffice'];
 
       if (postOffice.isNotEmpty) {
-        print('case 2');
-
-        print([postOffice]);
         setState(() {});
       }
     }

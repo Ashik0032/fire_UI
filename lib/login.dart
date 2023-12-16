@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fire_ui/color_page.dart';
+import 'package:fire_ui/google%20sing.dart';
 import 'package:fire_ui/homePage.dart';
 import 'package:fire_ui/image_page.dart';
 import 'package:fire_ui/phone.dart';
 import 'package:fire_ui/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +13,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main.dart';
+
+String? currentUserName;
+String? currentUserEmail;
+String? currentUserPassword;
+String? currentUserid;
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -30,19 +38,26 @@ class _loginState extends State<login> {
   bool tik = false;
   final formkey = GlobalKey<FormState>();
   // String name = '';
-  int num =0;
-  bool tap1=true;
-  bool login1=true;
+  int num = 0;
+  bool tap1 = true;
+  bool login1 = true;
   setData() async {
-    SharedPreferences _prefs =await SharedPreferences.getInstance();
+    SharedPreferences _prefs = await SharedPreferences.getInstance();
     _prefs.setString("name", email_controller.text);
-    name = _prefs.getString("name");
+    currentUserName = _prefs.getString("name");
   }
+
   // getData() async {
   //   SharedPreferences _prefs =
   //   await SharedPreferences.getInstance();
   //   login1 = _prefs.getBool('login')!;
   // }
+  @override
+  void initState() {
+    // getData();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,20 +184,41 @@ class _loginState extends State<login> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          onTap: () {
-                            setData();
-                            if(email_controller.text==""){
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("enter your username")));
+                          onTap: () async {
+                            if (email_controller.text == "") {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("enter your username")));
+                            } else {
+                              FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                      email: email_controller.text,
+                                      password: password_controller.text)
+                                  .then((value) async {
+                                // getData();
 
-                            }
-                            else{
-                              Navigator.push(context,
-                                  CupertinoPageRoute(builder:
-                                      (context) =>homePage()));
-                            }
+                                var data = await FirebaseFirestore.instance
+                                    .collection('flit')
+                                    .where('email',
+                                        isEqualTo: email_controller.text)
+                                    .get();
 
+                                currentUserName = data.docs[0]['name'];
+                                currentUserEmail = data.docs[0]['email'];
+                                currentUserPassword = data.docs[0]['password'];
+                                currentUserid = data.docs[0].id;
+
+                                Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (context) => homePage()));
+                              }).catchError((error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(error.code.toString())));
+                              });
+                            }
                           },
-
                           child: Container(
                             height: width * 0.13,
                             width: width * 0.65,
@@ -212,30 +248,35 @@ class _loginState extends State<login> {
                             ),
                           ),
                         ),
-                        Container(
-                          height: width * 0.13,
-                          width: width * 0.65,
-                          decoration: BoxDecoration(
-                              // color: colorPage.secondaryColor,
-                              border: Border.all(
-                                  color: colorPage.primaryColor,
-                                  width: width * 0.006),
-                              borderRadius: BorderRadius.circular(width * 1)),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: width * 0.025,
-                              ),
-                              SvgPicture.asset(imagePage.image3),
-                              SizedBox(
-                                width: width * 0.025,
-                              ),
-                              Text(" Sign in with Google",
-                                  style: GoogleFonts.montserrat(
-                                      color: colorPage.primaryColor,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: width * 0.045)),
-                            ],
+                        GestureDetector(
+                          onTap: () {
+                            AuthMethods().signInWithGoogle(context);
+                          },
+                          child: Container(
+                            height: width * 0.13,
+                            width: width * 0.65,
+                            decoration: BoxDecoration(
+                                // color: colorPage.secondaryColor,
+                                border: Border.all(
+                                    color: colorPage.primaryColor,
+                                    width: width * 0.006),
+                                borderRadius: BorderRadius.circular(width * 1)),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: width * 0.025,
+                                ),
+                                SvgPicture.asset(imagePage.image3),
+                                SizedBox(
+                                  width: width * 0.025,
+                                ),
+                                Text(" Sign in with Google",
+                                    style: GoogleFonts.montserrat(
+                                        color: colorPage.primaryColor,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: width * 0.045)),
+                              ],
+                            ),
                           ),
                         ),
                         InkWell(
